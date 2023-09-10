@@ -1,42 +1,40 @@
 import React, { useState } from 'react';
-import { Text, View, Alert, TextInput, Image, Pressable, StyleSheet } from 'react-native';
+import axios from 'axios';
+import { supabase } from '../lib/supabase'
+import { Text, View, Alert, TextInput, Image, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 
 const LoginScreen = ({ navigation }) => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
 
-  const validUsername = 'demo';
-  const validPassword = 'password';
 
-  const handleLogin = () => {
-    // Validate username and password fields
-    if (!username || !password) {
-      Alert.alert('Invalid Credentials', 'Please enter both username and password.');
-      return;
-    }
 
-    setIsLoading(true);
-
-    // Simulate login request with a delay to demonstrate loading indicator
-    setTimeout(() => {
-      setIsLoading(false);
-
-      if (username === validUsername && password === validPassword) {
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:3000/auth/login', {
+        username,
+        password,
+      });
+      if (response.data.message === 'Login successful') {
         navigation.navigate('Home');
+        console.log('Login successful');
       } else {
-        Alert.alert('Invalid Credentials', 'The username or password is incorrect. Please try again.');
+        console.log('Invalid credentials');
       }
-    }, 1500); // Simulating a network request with 1.5 seconds delay
+    } catch (error) {
+      console.log('An error ocuured', error);
+    }
   };
+
   const handleGoBack = () => {
     navigation.goBack();
   };
 
   return (
-    <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <View style={styles.all}>
       <View style={{ flexDirection: 'column', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
         <Image
           source={require('../assets/login.png')}
@@ -53,27 +51,26 @@ const LoginScreen = ({ navigation }) => {
             style={styles.inputText}
           />
         </View>
-
-        <TextInput
-          placeholder="password"
-          secureTextEntry
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          style={styles.inputText1}
-        />
+        <View style={styles.iconContainer}>
+          <Image source={require('../assets/password.png')} style={styles.icon1} />
+          <TextInput
+            placeholder="password"
+            secureTextEntry
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            style={styles.inputText1}
+          />
+        </View>
         <Text style={styles.footNote}>This information can be changed later.</Text>
 
-        {/* <Pressable style={styles.button} onPress={handleLogin}>
-          <Text style={styles.loginText}>Login</Text>
-        </Pressable> */}
         {isLoading ? (
           <ActivityIndicator size="small" color="blue" />
         ) : (
-       
+
           <Pressable style={styles.button} onPress={handleLogin} disabled={isLoading} >
             <Text style={styles.loginText}>Login</Text>
           </Pressable>
-         
+
         )}
 
       </View>
@@ -82,6 +79,13 @@ const LoginScreen = ({ navigation }) => {
   )
 }
 const styles = StyleSheet.create({
+  all: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EBF3F4',
+  },
   titleText: {
     fontSize: 17,
     color: '#475569',
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
     color: '#A9A9A9',
   },
   inputText: {
-    width: '100%',
+    width: 300,
     height: 40,
     borderWidth: 2,
     borderColor: '#2D9EE0',
@@ -108,7 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   inputText1: {
-    width: '300px',
+    width: 300,
     height: 40,
     borderWidth: 2,
     borderColor: '#2D9EE0',
@@ -119,14 +123,24 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: '100%',
     position: 'relative',
+    alignItems: 'center',
+   
   },
   icon: {
     position: 'absolute',
     top: 38, // Adjust the icon position as needed
-    left: 8, // Adjust the icon position as needed
+    left: 70, // Adjust the icon position as needed
     width: 18, // Set the width of the icon
     height: 18, // Set the height of the icon
     resizeMode: 'contain',
+  },
+  icon1: {
+    position: 'absolute',
+    top: 20,
+    width: 18,
+    right:340,
+
+
   },
   footNote: {
     marginTop: 7,
@@ -136,18 +150,20 @@ const styles = StyleSheet.create({
 
   },
   button: {
-    width: '300px',
+    width: 300,
     backgroundColor: '#2D9EE0',
     padding: 17,
-    alignContent: 'center',
-    textAlign: 'center',
     borderRadius: 10,
+    alignItems: 'center',
+
 
   },
   loginText: {
     color: '#FCFEFC',
     fontWeight: '500',
-    fontSize: '17px'
+    fontSize: '17px',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });
 
