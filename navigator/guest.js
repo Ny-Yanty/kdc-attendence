@@ -11,7 +11,7 @@ function Guest() {
         <Stack.Navigator >
             <Stack.Screen name='Sign In' component={LoginScreen}
                 options={{
-                    headerShown: false,
+                    headerShown: true,
                 }} />
         </Stack.Navigator>
     );

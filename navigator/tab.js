@@ -13,6 +13,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
+
     return (
         <Tab.Navigator
             screenOptions={{

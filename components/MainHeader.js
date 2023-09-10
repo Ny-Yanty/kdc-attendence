@@ -2,10 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { G, Path } from 'react-native-svg';
+import {supabase} from '../lib/supabase'
 
 const MainHeader = () => {
     const insets = useSafeAreaInsets();
     const [greeting, setGreeting] = useState('');
+    const [user, setUser] = useState(null)
+    const fetchData = async () => {
+        const { data } = await supabase.auth.getUser()
+
+        let { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data?.user?.id)
+          .single()
+        
+        console.log(profile)
+        setUser(profile)
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
 
     useEffect(() => {
         const currentHour = new Date().getHours();
@@ -22,7 +40,7 @@ const MainHeader = () => {
         <View style={[styles.container, { marginTop: insets.top }]}>
             <View>
                 <Text style={styles.text}>{greeting}</Text>
-                <Text style={styles.fullName}>hello</Text>
+                <Text style={styles.fullName}>{user?.full_name}</Text>
             </View>
             <Svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +56,7 @@ const MainHeader = () => {
                     d="M8.464 1.809A8.09 8.09 0 0 1 12 1c4.555 0 8.25 3.763 8.25 8.406v.846a5.21 5.21 0 0 0 .846 2.85l1.354 2.069c1.236 1.89.292 4.459-1.858 5.057a32.063 32.063 0 0 1-17.184 0C1.258 19.63.314 17.06 1.55 15.172l1.354-2.07a5.21 5.21 0 0 0 .846-2.85v-.846c0-1.289.285-2.51.795-3.602M6.5 21.4C7.3 23.498 9.46 25 12 25c.3 0 .593-.02.88-.06m4.62-3.54a5.4 5.4 0 0 1-1.591 2.208"
                 />
             </Svg>
-        
+
         </View>
     )
 
@@ -51,8 +69,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 30,
-      
-       
+
+
     },
     text: {
         fontSize: 16,
@@ -61,7 +79,7 @@ const styles = StyleSheet.create({
     },
     fullName: {
         fontSize: 27,
-        fontWeight:'bold',
+        fontWeight: 'bold',
 
     }
 })

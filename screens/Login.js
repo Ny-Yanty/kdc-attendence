@@ -1,37 +1,24 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase';
+
 import { Text, View, Alert, TextInput, Image, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 
 const LoginScreen = ({ navigation }) => {
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
+  async function signInWithEmail() {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    })
 
-
-
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('http://localhost:3000/auth/login', {
-        username,
-        password,
-      });
-      if (response.data.message === 'Login successful') {
-        navigation.navigate('Home');
-        console.log('Login successful');
-      } else {
-        console.log('Invalid credentials');
-      }
-    } catch (error) {
-      console.log('An error ocuured', error);
-    }
-  };
-
-  const handleGoBack = () => {
-    navigation.goBack();
-  };
+    if (error) Alert.alert(error.message)
+    setLoading(false)
+  }
 
   return (
     <View style={styles.all}>
@@ -45,9 +32,10 @@ const LoginScreen = ({ navigation }) => {
         <View style={styles.iconContainer}>
           <Image source={require('../assets/user.png')} style={styles.icon} />
           <TextInput
-            value={username}
-            onChangeText={(text) => setUsername(text)}
-            placeholder={'username'}
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            placeholder={'email'}
+            inputMode='email'
             style={styles.inputText}
           />
         </View>
@@ -66,8 +54,7 @@ const LoginScreen = ({ navigation }) => {
         {isLoading ? (
           <ActivityIndicator size="small" color="blue" />
         ) : (
-
-          <Pressable style={styles.button} onPress={handleLogin} disabled={isLoading} >
+          <Pressable style={styles.button} onPress={signInWithEmail} disabled={isLoading} >
             <Text style={styles.loginText}>Login</Text>
           </Pressable>
 
@@ -103,21 +90,23 @@ const styles = StyleSheet.create({
   },
   inputText: {
     width: 300,
-    height: 40,
+    height: 50,
     borderWidth: 2,
     borderColor: '#2D9EE0',
+    color: '#2D9EE0',
     marginBottom: 25,
-    padding: 25,
+    paddingHorizontal: 25,
     marginTop: 20,
     borderRadius: 10,
   },
   inputText1: {
     width: 300,
-    height: 40,
+    height: 50,
     borderWidth: 2,
     borderColor: '#2D9EE0',
+    color: '#2D9EE0',
     marginBottom: 10,
-    padding: 25,
+    paddingHorizontal: 25,
     borderRadius: 10,
   },
   iconContainer: {
@@ -161,7 +150,7 @@ const styles = StyleSheet.create({
   loginText: {
     color: '#FCFEFC',
     fontWeight: '500',
-    fontSize: '17px',
+    fontSize: 17,
     alignItems: 'center',
     justifyContent: 'center'
   }
